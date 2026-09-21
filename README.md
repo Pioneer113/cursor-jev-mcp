@@ -1,51 +1,52 @@
-# cursor-jev-mcp
+# cursor-jev
 
-Stdio MCP для Cursor Desktop. Один вызов крутит цикл кликов Jev. Cursor после этого печатает текст и проверяет результат.
+[Русская версия](README.ru.md)
 
-Скилл `jev-browser-use` не форкается и не копируется. Сервер импортирует установленный `bridge.mjs`.
+MCP server for Cursor Desktop. It runs the [jev-browser-use](https://github.com/wy-coliney/jev-browser-use) click loop in Google Chrome. Cursor supplies the task, types text, and checks the result. Jev chooses the next click.
 
-## Подключение
+This repository does not copy or fork that skill. The server imports an installed `bridge.mjs`. The skill is MIT-licensed. This project is a separate Cursor adapter, not an official part of the skill.
 
-Проектный конфиг уже лежит в `.cursor/mcp.json`. Откройте эту папку в Cursor и включите сервер `cursor-jev`.
+## Setup
 
-Глобальный `~/.cursor/mcp.json` не меняется.
+Install [jev-browser-use](https://github.com/wy-coliney/jev-browser-use) and Google Chrome. Then add this server in the project `.cursor/mcp.json`:
 
-Инструменты: `jev_user_tabs`, `jev_claim_tab`, `jev_browser_run`.
+```json
+{
+  "mcpServers": {
+    "cursor-jev": {
+      "command": "node",
+      "args": ["/absolute/path/to/cursor-jev-mcp/src/server.mjs"]
+    }
+  }
+}
+```
 
-## Живые клики
+Open the folder in Cursor and enable `cursor-jev`.
 
-`jev_browser_run` с полем `url` сам открывает установленный Google Chrome в фоне, без личного профиля. Один заход — 12 шагов и не больше 45 секунд, как в инструкции Codex. Окно не закрывается. Если статус `step_limit` или `budget`, Cursor смотрит скриншот и при живой задаче вызывает инструмент ещё раз с тем же `session_id`, без `url`. Если статус `needs_verification`, это не успех: Cursor проверяет скриншот и останавливается. Окно показывается, если задать `JEV_CHROME_HEADLESS=0`.
+By default the server loads `~/.agents/skills/jev-browser-use/bridge.mjs`. Override it with `JEV_BRIDGE_PATH`.
 
-Проверка на публичной странице:
+## Tools
+
+- `jev_browser_run` opens Chrome and runs one Jev chunk.
+- `jev_host_type` types text supplied by Cursor. The reply contains the length and `session_id`, not the text.
+- `jev_wait` waits until the open page contains the requested strings. It does not ask Jev for a new decision.
+- `jev_user_tabs` and `jev_claim_tab` claim an already open tab through `codex-browser-bridge`. That program is Windows-only. On other systems, pass `url` to `jev_browser_run` instead.
+
+## What one call does
+
+`jev_browser_run` with `url` launches the installed Google Chrome in the background. It does not use the personal Chrome profile. One chunk is 12 steps and at most 45 seconds. Chrome stays open.
+
+If the status is `step_limit` or `budget`, Cursor looks at the screenshot and, when the task is still valid, calls the tool again with the same `session_id` and no `url`. `needs_verification` is not a pass. Cursor checks the screenshot and stops.
+
+Set `JEV_CHROME_HEADLESS=0` to show the window. If `~/.config/jev-browser-use/config.json` sets `browser.allowedOrigins` or `browser.allowedActors`, the server honors them. The actor comes from `JEV_BROWSER_ACTOR`.
+
+## Limits
+
+Jev does not type. Safe keys are Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, and End. A targeted scroll uses a snapshot index or a point supplied by Cursor. Names such as send, delete, pay, and password are rejected. Existing tabs of normal Chrome, frames, drag-and-drop, and uploads are not supported.
+
+## Check
 
 ```sh
+npm test
 node scripts/live-example.mjs
-```
-
-Путь через `codex-browser-bridge` остаётся для уже открытой вкладки (`tab_id`). На этом Mac той программы нет, поэтому рабочий путь — Chrome.
-
-Своя команда:
-
-```sh
-CODEX_BROWSER_BRIDGE_COMMAND=/path/to/codex-browser-bridge node src/server.mjs
-```
-
-Другой путь к циклу:
-
-```sh
-JEV_BRIDGE_PATH=/path/to/bridge.mjs
-```
-
-По умолчанию берётся `~/.agents/skills/jev-browser-use/bridge.mjs`.
-
-Если в `~/.config/jev-browser-use/config.json` заданы `browser.allowedOrigins` или `browser.allowedActors`, сервер их соблюдает. Актор читается из `JEV_BROWSER_ACTOR`.
-
-## Границы
-
-Jev не печатает. Текст вводит Cursor через `jev_host_type`: ответ содержит длину, не сам текст. `jev_wait` ждёт строку на уже открытом сеансе и не запускает новое решение. Клавиши: Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, End. Прокрутка блока идёт по индексу снимка или по точке, которую дал Cursor. Чужие вкладки обычного Chrome, кадры, перетаскивание и загрузки не поддерживаются. Имена вроде send, delete, pay и password отсекаются. Статус цикла — не подтверждение успеха: итог проверяет Cursor.
-
-## Проверка
-
-```sh
-node --test
 ```
