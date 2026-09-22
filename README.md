@@ -44,6 +44,10 @@ Set `JEV_CHROME_HEADLESS=0` to show the window. If `~/.config/jev-browser-use/co
 
 Jev does not type. Safe keys are Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, and End. A targeted scroll uses a snapshot index or a point supplied by Cursor. Names such as send, delete, pay, and password are rejected. Existing tabs of normal Chrome, frames, drag-and-drop, and uploads are not supported.
 
+## License
+
+This adapter is [MIT](LICENSE), copyright Pioneer113. The click loop belongs to [jev-browser-use](https://github.com/wy-coliney/jev-browser-use), which has its own MIT license. This repository is not endorsed by that project.
+
 ## Check
 
 ```sh

@@ -1,7 +1,13 @@
 {
   "name": "cursor-jev-mcp",
   "version": "0.1.0",
+  "description": "Cursor MCP that runs the jev-browser-use click loop in Google Chrome.",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pioneer113/cursor-jev-mcp.git"
+  },
   "type": "module",
   "scripts": {
     "start": "node src/server.mjs",
