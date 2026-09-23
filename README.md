@@ -1,10 +1,10 @@
-# cursor-jev
+# jev-chrome-mcp
 
 [Русская версия](README.ru.md)
 
-MCP server for Cursor Desktop. It runs the [jev-browser-use](https://github.com/wy-coliney/jev-browser-use) click loop in Google Chrome. Cursor supplies the task, types text, and checks the result. Jev chooses the next click.
+MCP server for any client that can start a local process. It runs the [jev-browser-use](https://github.com/wy-coliney/jev-browser-use) click loop in Google Chrome. The client supplies the task, types text, and checks the result. Jev chooses the next click. Tested with Cursor and Codex CLI.
 
-This repository does not copy or fork that skill. The server imports an installed `bridge.mjs`. The skill is MIT-licensed. This project is a separate Cursor adapter, not an official part of the skill.
+This repository does not copy or fork that skill. The server imports an installed `bridge.mjs`. The skill is MIT-licensed. This project is a separate adapter, not an official part of the skill.
 
 ## Setup
 
