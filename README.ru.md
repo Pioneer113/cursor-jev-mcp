@@ -15,7 +15,7 @@ MCP-сервер для любой программы, которая умеет
   "mcpServers": {
     "cursor-jev": {
       "command": "node",
-      "args": ["/absolute/path/to/cursor-jev-mcp/src/server.mjs"]
+      "args": ["/absolute/path/to/jev-chrome-mcp/src/server.mjs"]
     }
   }
 }

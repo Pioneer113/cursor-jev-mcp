@@ -102,7 +102,7 @@ class BrowserMcpClient {
     this.child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', method, params })}\n`);
   }
   async initialize() {
-    await this.request('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'cursor-jev-mcp', version: '0.1.0' } });
+    await this.request('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'jev-chrome-mcp', version: '0.1.0' } });
     this.notify('notifications/initialized', {});
   }
   callTool(name, args) {
@@ -381,7 +381,7 @@ async function main() {
     if (request.id === undefined) return;
     try {
       let result;
-      if (request.method === 'initialize') result = { protocolVersion: '2025-11-25', capabilities: { tools: {} }, serverInfo: { name: 'cursor-jev-mcp', version: '0.1.0' } };
+      if (request.method === 'initialize') result = { protocolVersion: '2025-11-25', capabilities: { tools: {} }, serverInfo: { name: 'jev-chrome-mcp', version: '0.1.0' } };
       else if (request.method === 'tools/list') result = { tools };
       else if (request.method === 'tools/call') {
         const name = request.params?.name;

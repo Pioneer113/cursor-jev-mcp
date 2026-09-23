@@ -179,7 +179,7 @@ test('stdio server stays up and reports a missing bridge', async () => {
   const send = message => child.stdin.write(`${JSON.stringify(message)}\n`);
   send({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {} });
   const started = await next();
-  assert.equal(started.result.serverInfo.name, 'cursor-jev-mcp');
+  assert.equal(started.result.serverInfo.name, 'jev-chrome-mcp');
   send({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'jev_user_tabs', arguments: {} } });
   const failed = await next();
   assert.equal(failed.result.isError, true);

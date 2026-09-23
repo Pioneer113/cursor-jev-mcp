@@ -15,7 +15,7 @@ Install [jev-browser-use](https://github.com/wy-coliney/jev-browser-use) and Goo
   "mcpServers": {
     "cursor-jev": {
       "command": "node",
-      "args": ["/absolute/path/to/cursor-jev-mcp/src/server.mjs"]
+      "args": ["/absolute/path/to/jev-chrome-mcp/src/server.mjs"]
     }
   }
 }
