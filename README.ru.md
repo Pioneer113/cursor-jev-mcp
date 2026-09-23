@@ -13,7 +13,7 @@ MCP-сервер для любой программы, которая умеет
 ```json
 {
   "mcpServers": {
-    "cursor-jev": {
+    "jev-chrome-mcp": {
       "command": "node",
       "args": ["/absolute/path/to/jev-chrome-mcp/src/server.mjs"]
     }
@@ -21,14 +21,14 @@ MCP-сервер для любой программы, которая умеет
 }
 ```
 
-Откройте папку в Cursor и включите `cursor-jev`.
+Откройте папку в Cursor и включите `jev-chrome-mcp`. Ту же команду можно добавить в любой другой MCP-клиент.
 
 По умолчанию сервер берёт `~/.agents/skills/jev-browser-use/bridge.mjs`. Другой путь задаётся через `JEV_BRIDGE_PATH`.
 
 ## Инструменты
 
 - `jev_browser_run` открывает Chrome и делает один заход Jev.
-- `jev_host_type` вводит текст, который передал Cursor. В ответе длина и `session_id`, не сам текст.
+- `jev_host_type` вводит текст, который передал клиент. В ответе длина и `session_id`, не сам текст.
 - `jev_wait` ждёт, пока на открытой странице появятся заданные строки. Новое решение Jev для этого не запрашивается.
 - `jev_user_tabs` и `jev_claim_tab` берут уже открытую вкладку через `codex-browser-bridge`. Эта программа только для Windows. На других системах передавайте `url` в `jev_browser_run`.
 
@@ -36,13 +36,13 @@ MCP-сервер для любой программы, которая умеет
 
 `jev_browser_run` с `url` сам запускает установленный Google Chrome в фоне и не использует личный профиль. Один заход — 12 шагов и не больше 45 секунд. Окно не закрывается.
 
-Если статус `step_limit` или `budget`, Cursor смотрит скриншот и при живой задаче вызывает инструмент ещё раз с тем же `session_id`, без `url`. `needs_verification` — не успех: Cursor проверяет скриншот и останавливается.
+Если статус `step_limit` или `budget`, клиент смотрит скриншот и при живой задаче вызывает инструмент ещё раз с тем же `session_id`, без `url`. `needs_verification` — не успех: клиент проверяет скриншот и останавливается.
 
 Окно показывается, если задать `JEV_CHROME_HEADLESS=0`. Если в `~/.config/jev-browser-use/config.json` заданы `browser.allowedOrigins` или `browser.allowedActors`, сервер их соблюдает. Актор читается из `JEV_BROWSER_ACTOR`.
 
 ## Границы
 
-Jev не печатает. Клавиши: Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, End. Прокрутка блока идёт по индексу снимка или по точке, которую дал Cursor. Имена вроде send, delete, pay и password отсекаются. Чужие вкладки обычного Chrome, кадры, перетаскивание и загрузки не поддерживаются.
+Jev не печатает. Клавиши: Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, End. Прокрутка блока идёт по индексу снимка или по точке, которую дал клиент. Имена вроде send, delete, pay и password отсекаются. Чужие вкладки обычного Chrome, кадры, перетаскивание и загрузки не поддерживаются.
 
 ## Лицензия
 

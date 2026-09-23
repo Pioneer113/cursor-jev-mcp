@@ -13,7 +13,7 @@ Install [jev-browser-use](https://github.com/wy-coliney/jev-browser-use) and Goo
 ```json
 {
   "mcpServers": {
-    "cursor-jev": {
+    "jev-chrome-mcp": {
       "command": "node",
       "args": ["/absolute/path/to/jev-chrome-mcp/src/server.mjs"]
     }
@@ -21,14 +21,14 @@ Install [jev-browser-use](https://github.com/wy-coliney/jev-browser-use) and Goo
 }
 ```
 
-Open the folder in Cursor and enable `cursor-jev`.
+Open the folder in Cursor and enable `jev-chrome-mcp`. The same command can be added to any other MCP client.
 
 By default the server loads `~/.agents/skills/jev-browser-use/bridge.mjs`. Override it with `JEV_BRIDGE_PATH`.
 
 ## Tools
 
 - `jev_browser_run` opens Chrome and runs one Jev chunk.
-- `jev_host_type` types text supplied by Cursor. The reply contains the length and `session_id`, not the text.
+- `jev_host_type` types text supplied by the client. The reply contains the length and `session_id`, not the text.
 - `jev_wait` waits until the open page contains the requested strings. It does not ask Jev for a new decision.
 - `jev_user_tabs` and `jev_claim_tab` claim an already open tab through `codex-browser-bridge`. That program is Windows-only. On other systems, pass `url` to `jev_browser_run` instead.
 
@@ -36,13 +36,13 @@ By default the server loads `~/.agents/skills/jev-browser-use/bridge.mjs`. Overr
 
 `jev_browser_run` with `url` launches the installed Google Chrome in the background. It does not use the personal Chrome profile. One chunk is 12 steps and at most 45 seconds. Chrome stays open.
 
-If the status is `step_limit` or `budget`, Cursor looks at the screenshot and, when the task is still valid, calls the tool again with the same `session_id` and no `url`. `needs_verification` is not a pass. Cursor checks the screenshot and stops.
+If the status is `step_limit` or `budget`, the client looks at the screenshot and, when the task is still valid, calls the tool again with the same `session_id` and no `url`. `needs_verification` is not a pass. The client checks the screenshot and stops.
 
 Set `JEV_CHROME_HEADLESS=0` to show the window. If `~/.config/jev-browser-use/config.json` sets `browser.allowedOrigins` or `browser.allowedActors`, the server honors them. The actor comes from `JEV_BROWSER_ACTOR`.
 
 ## Limits
 
-Jev does not type. Safe keys are Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, and End. A targeted scroll uses a snapshot index or a point supplied by Cursor. Names such as send, delete, pay, and password are rejected. Existing tabs of normal Chrome, frames, drag-and-drop, and uploads are not supported.
+Jev does not type. Safe keys are Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, and End. A targeted scroll uses a snapshot index or a point supplied by the client. Names such as send, delete, pay, and password are rejected. Existing tabs of normal Chrome, frames, drag-and-drop, and uploads are not supported.
 
 ## License
 
