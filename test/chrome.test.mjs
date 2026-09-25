@@ -191,7 +191,34 @@ test('one call does not start a second chunk', async () => {
   await closeChromeSession(harness.sessions);
 });
 
-test('wait matches open-session text without a Jev decision', async () => {
+test('jev_wait forwards includes and excludes and rejects another session', async () => {
+  const seen = [];
+  const sessions = {
+    current: { id: 'session-1', allowedOrigins: ['https://example.com'], tab: { marker: 'open-tab' } },
+    queue: Promise.resolve()
+  };
+  const bridge = {
+    async waitForState(tab, contract) {
+      seen.push({ tab, contract });
+      return { status: 'matched', elapsedMs: 4, state: 'page text that must stay inside the server' };
+    }
+  };
+  const result = await waitForChromeState({
+    session_id: 'session-1',
+    includes: ['Ready'],
+    excludes: ['Missing']
+  }, { sessions, bridge });
+  assert.deepEqual(result, { status: 'matched', elapsedMs: 4, session_id: 'session-1' });
+  assert.equal(JSON.stringify(result).includes('page text'), false);
+  assert.equal(seen[0].tab, sessions.current.tab);
+  assert.deepEqual(seen[0].contract.includes, ['Ready']);
+  assert.deepEqual(seen[0].contract.excludes, ['Missing']);
+  assert.deepEqual(seen[0].contract.allowedOrigins, ['https://example.com']);
+  await assert.rejects(() => waitForChromeState({ session_id: 'other', includes: ['Ready'] }, { sessions, bridge }), /session_id/);
+  assert.equal(seen.length, 1);
+});
+
+test('jev_wait matches open-session text without a Jev decision', async () => {
   const bridge = await import(pathToFileURL(join(homedir(), '.agents/skills/jev-browser-use/bridge.mjs')).href);
   const sessions = {
     current: {
@@ -224,7 +251,7 @@ test('wait matches open-session text without a Jev decision', async () => {
   assert.equal(missed.status, 'timeout');
 });
 
-test('host type clicks a named field and does not echo the text', async () => {
+test('jev_host_type clicks a named field and does not echo the text', async () => {
   const calls = [];
   const page = {
     url: () => 'https://example.com/',
@@ -252,7 +279,7 @@ test('host type clicks a named field and does not echo the text', async () => {
   await assert.rejects(() => typeInChrome({ session_id: 'missing', text: 'a' }, { sessions }), /session_id/);
 });
 
-test('host type clicks a searchbox and does not echo the text', async () => {
+test('jev_host_type clicks a searchbox and does not echo the text', async () => {
   const calls = [];
   const page = {
     url: () => 'https://www.wikipedia.org/',

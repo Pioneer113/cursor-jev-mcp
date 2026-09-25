@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { createBridgeTab } from '../src/tab-adapter.mjs';
-import { browserBridgeArgs, handleJevTool, loadBridge, resolveBridgeCommand } from '../src/server.mjs';
+import { browserBridgeArgs, handleJevTool, loadBridge, resolveBridgeCommand, tools } from '../src/server.mjs';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const missingBridge = /codex-browser-bridge was not found/;
@@ -120,6 +120,19 @@ test('filters tabs, checks a claimed origin, and finalizes a run', async () => {
   assert.equal(calls.at(-1)[0], 'codex_finalize');
 });
 
+test('jev_claim_tab rejects a tab whose origin is not allowed', async () => {
+  const calls = [];
+  await assert.rejects(() => handleJevTool('jev_claim_tab', { tab_id: 'foreign' }, async name => {
+    calls.push(name);
+    if (name === 'codex_get_url') return { content: [{ type: 'text', text: 'https://evil.test/x' }] };
+    return { content: [{ type: 'text', text: 'claimed' }] };
+  }, {
+    config: { browser: { allowedOrigins: ['https://example.com'] } },
+    env: { JEV_BROWSER_ACTOR: 'cursor' }
+  }), /not authorized/);
+  assert.deepEqual(calls, ['codex_claim_tab', 'codex_get_url']);
+});
+
 test('finalizes a run that throws', async () => {
   const calls = [];
   await assert.rejects(() => handleJevTool('jev_browser_run', {
@@ -187,6 +200,19 @@ test('stdio server stays up and reports a missing bridge', async () => {
   send({ jsonrpc: '2.0', id: 3, method: 'tools/list' });
   const listed = await next();
   assert.equal(listed.result.tools.length, 5);
+  const names = listed.result.tools.map(tool => tool.name);
+  assert.deepEqual(names, ['jev_user_tabs', 'jev_claim_tab', 'jev_browser_run', 'jev_wait', 'jev_host_type']);
+  const expected = {
+    jev_user_tabs: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    jev_claim_tab: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    jev_browser_run: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    jev_wait: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    jev_host_type: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true }
+  };
+  for (const tool of listed.result.tools) {
+    assert.deepEqual(tool.annotations, expected[tool.name]);
+    assert.deepEqual(tool.annotations, tools.find(item => item.name === tool.name).annotations);
+  }
   child.kill();
   await new Promise(resolve => child.on('exit', resolve));
 });

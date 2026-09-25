@@ -16,12 +16,21 @@ const WRAPPER_KEYS = new Set(['Enter', 'Escape', 'Tab', 'Shift+Tab', 'PageUp', '
 const MISSING_BRIDGE = 'codex-browser-bridge was not found in PATH. Install it or set CODEX_BROWSER_BRIDGE_COMMAND. Live clicks are unavailable until then.';
 const DEFAULT_MAX_STEPS = 12;
 
-const tools = [
-  { name: 'jev_user_tabs', description: 'List existing browser tabs available to claim.', inputSchema: { type: 'object', properties: {} } },
-  { name: 'jev_claim_tab', description: 'Claim one existing browser tab for bounded Jev operation.', inputSchema: { type: 'object', properties: { tab_id: { type: 'string' } }, required: ['tab_id'] } },
-  { name: 'jev_browser_run', description: 'Run one Jev chunk in background Google Chrome. Default 12 steps, maximum 30, and 45 seconds. Pass url to open a page. Chrome stays open and the same Jev history is kept. Safe keys are Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, and End. If status is step_limit or budget, inspect the screenshot and call again with the same session_id and goal, without url, only when the task is still valid. If status is needs_verification, stop and verify the screenshot yourself. That status is not a pass. Jev does not type.', inputSchema: { type: 'object', properties: { url: { type: 'string' }, session_id: { type: 'string' }, tab_id: { type: 'string' }, goal: { type: 'string' }, allowed_origins: { type: 'array', items: { type: 'string' } }, controls: { type: 'array' }, policy: { type: 'object' }, max_steps: { type: 'integer', minimum: 1, maximum: 30 }, min_confidence: { type: 'number', minimum: 0.55, maximum: 1 } }, required: ['goal'] } },
-  { name: 'jev_wait', description: 'Wait until the open Chrome session accessibility text includes every string in includes and none in excludes. Does not start a Jev decision. Requires session_id.', inputSchema: { type: 'object', properties: { session_id: { type: 'string' }, includes: { type: 'array', items: { type: 'string' } }, excludes: { type: 'array', items: { type: 'string' } }, timeout_ms: { type: 'integer', minimum: 1, maximum: 60000 }, poll_ms: { type: 'integer', minimum: 100, maximum: 5000 } }, required: ['session_id'] } },
-  { name: 'jev_host_type', description: 'Type text supplied by the host into the open Chrome session. Jev never chooses this text. Pass field to click that text field first. The typed text is not returned. Then resume with jev_browser_run and the same session_id.', inputSchema: { type: 'object', properties: { session_id: { type: 'string' }, text: { type: 'string' }, field: { type: 'string' } }, required: ['session_id', 'text'] } }
+function toolAnnotations({ readOnly, idempotent }) {
+  return {
+    readOnlyHint: readOnly,
+    destructiveHint: false,
+    idempotentHint: idempotent,
+    openWorldHint: true
+  };
+}
+
+export const tools = [
+  { name: 'jev_user_tabs', description: 'List existing browser tabs available to claim.', annotations: toolAnnotations({ readOnly: true, idempotent: true }), inputSchema: { type: 'object', properties: {} } },
+  { name: 'jev_claim_tab', description: 'Claim one existing browser tab for bounded Jev operation.', annotations: toolAnnotations({ readOnly: false, idempotent: false }), inputSchema: { type: 'object', properties: { tab_id: { type: 'string' } }, required: ['tab_id'] } },
+  { name: 'jev_browser_run', description: 'Run one Jev chunk in background Google Chrome. Default 12 steps, maximum 30, and 45 seconds. Pass url to open a page. Chrome stays open and the same Jev history is kept. Safe keys are Enter, Escape, Tab, Shift+Tab, PageUp, PageDown, Home, and End. If status is step_limit or budget, inspect the screenshot and call again with the same session_id and goal, without url, only when the task is still valid. If status is needs_verification, stop and verify the screenshot yourself. That status is not a pass. Jev does not type.', annotations: toolAnnotations({ readOnly: false, idempotent: false }), inputSchema: { type: 'object', properties: { url: { type: 'string' }, session_id: { type: 'string' }, tab_id: { type: 'string' }, goal: { type: 'string' }, allowed_origins: { type: 'array', items: { type: 'string' } }, controls: { type: 'array' }, policy: { type: 'object' }, max_steps: { type: 'integer', minimum: 1, maximum: 30 }, min_confidence: { type: 'number', minimum: 0.55, maximum: 1 } }, required: ['goal'] } },
+  { name: 'jev_wait', description: 'Wait until the open Chrome session accessibility text includes every string in includes and none in excludes. Does not start a Jev decision. Requires session_id.', annotations: toolAnnotations({ readOnly: true, idempotent: true }), inputSchema: { type: 'object', properties: { session_id: { type: 'string' }, includes: { type: 'array', items: { type: 'string' } }, excludes: { type: 'array', items: { type: 'string' } }, timeout_ms: { type: 'integer', minimum: 1, maximum: 60000 }, poll_ms: { type: 'integer', minimum: 100, maximum: 5000 } }, required: ['session_id'] } },
+  { name: 'jev_host_type', description: 'Type text supplied by the host into the open Chrome session. Jev never chooses this text. Pass field to click that text field first. The typed text is not returned. Then resume with jev_browser_run and the same session_id.', annotations: toolAnnotations({ readOnly: false, idempotent: false }), inputSchema: { type: 'object', properties: { session_id: { type: 'string' }, text: { type: 'string' }, field: { type: 'string' } }, required: ['session_id', 'text'] } }
 ];
 
 export function resolveBridgeCommand(env = process.env) {
